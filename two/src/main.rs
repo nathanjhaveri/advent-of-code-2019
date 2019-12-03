@@ -31,7 +31,7 @@ fn compute(ops: &mut Vec<u32>) {
     }
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn init() -> Result<Vec<u32>, Box<dyn Error>> {
     let input = read_to_string("input.txt")?;
     let mut ops: Vec<u32> = Vec::new();
     for op_str in input.split(",") {
@@ -39,14 +39,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         ops.push(op);
     }
 
-    ops[1] = 12;
-    ops[2] = 2;
+    Ok(ops)
+}
 
-    compute(&mut ops);
+fn main() -> Result<(), Box<dyn Error>> {
+    let target = 19690720;
 
+    // Dumb brute force
+    for a in 1..100 {
+        for b in 1..100 {
+            let mut ops = init()?;
+            ops[1] = a;
+            ops[2] = b;
+
+            compute(&mut ops);
+            if ops[0] == target {
+                println!("perfect a: {}, b: {}", a, b);
+            }
+        }
+    }
 
     println!("end");
-    println!("{}", ops[0]);
+    //println!("{}", ops[0]);
 
     Ok(())
 }
