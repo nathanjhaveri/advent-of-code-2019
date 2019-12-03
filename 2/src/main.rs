@@ -31,7 +31,9 @@ fn compute(ops: &mut Vec<u32>) {
     }
 }
 
-fn init() -> Result<Vec<u32>, Box<dyn Error>> {
+type Result<T> = Result<T, Box<dyn Error>;
+
+fn init() -> Result<Vec<u32>> {
     let input = read_to_string("input.txt")?;
     let mut ops: Vec<u32> = Vec::new();
     for op_str in input.split(",") {
@@ -42,7 +44,7 @@ fn init() -> Result<Vec<u32>, Box<dyn Error>> {
     Ok(ops)
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     let target = 19690720;
 
     // Dumb brute force
