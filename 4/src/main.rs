@@ -15,7 +15,7 @@ fn find_valid(lower: i32, upper: i32) -> i32 {
         //println!("number {:?}", number);
         //println!("digits {:?}", digits);
 
-        if two_adjacent_same(digits) && increasing(digits){
+        if only_two_adjacent_same(digits) && increasing(digits){
             count += 1;
         }
     }
@@ -49,6 +49,36 @@ fn two_adjacent_same(digits: Password) -> bool {
     digits[3] == digits[4] ||
     digits[4] == digits[5]
 }
+
+fn only_two_adjacent_same(digits: Password) -> bool {
+    let mut i = 0;
+    let end = digits.len() - 1;
+    while i < end {
+        let mut run_len = 1;
+        let mut candidate = digits[i];
+        let mut next = digits[i + 1];
+
+        while candidate == next && i < end - 1 {
+            i += 1;
+            run_len += 1;
+            candidate = digits[i];
+            next = digits[i + 1];
+        }
+
+        if candidate == next {
+            run_len += 1
+        }
+
+        if run_len == 2 {
+            return true;
+        }
+
+        i += 1;
+    }
+
+    return false;
+}
+
 
 fn nth_digit(n: u32, number: i32) -> i32 {
     (number / 10i32.pow(n)) % 10
