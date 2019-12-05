@@ -47,7 +47,11 @@ fn resolve_op(ops: &Ops, index: usize, mode: OpMode) -> i32 {
     }
 }
 
-fn compute(ops: &mut Ops, read: fn() -> i32, write: fn(i32)) {
+fn compute<RF, WF>(ops: &mut Ops, read: RF, mut write: WF)
+where
+    RF: Fn() -> i32,
+    WF: FnMut(i32),
+{
     // ip - instruction pointer
     // a - first register
     // b - second register
@@ -94,6 +98,48 @@ fn compute(ops: &mut Ops, read: fn() -> i32, write: fn(i32)) {
                 write(ops[input_index]);
                 ip += 1;
             }
+            JUMP_IF_TRUE => {
+                let a = resolve_op(ops, ip, mode1);
+                ip += 1;
+                let b = resolve_op(ops, ip, mode2);
+                ip += 1;
+
+                if a != 0 {
+                    ip = b as usize;
+                }
+            }
+            JUMP_IF_FALSE => {
+                let a = resolve_op(ops, ip, mode1);
+                ip += 1;
+                let b = resolve_op(ops, ip, mode2);
+                ip += 1;
+
+                if a == 0 {
+                    ip = b as usize;
+                }
+            }
+            LESS_THAN => {
+                let a = resolve_op(ops, ip, mode1);
+                ip += 1;
+                let b = resolve_op(ops, ip, mode2);
+                ip += 1;
+
+                let rp = ops[ip] as usize;
+                ip += 1;
+
+                ops[rp] = if a < b { 1 } else { 0 };
+            }
+            EQUALS => {
+                let a = resolve_op(ops, ip, mode1);
+                ip += 1;
+                let b = resolve_op(ops, ip, mode2);
+                ip += 1;
+
+                let rp = ops[ip] as usize;
+                ip += 1;
+
+                ops[rp] = if a == b { 1 } else { 0 };
+            }
             _ => panic!("Unrecognized instruction {}", op),
         };
     }
@@ -117,7 +163,7 @@ fn main() -> ResultX<()> {
     let input = read_to_string("input.txt")?;
     let mut ops = init_ops(input)?;
 
-    let read = || 1;
+    let read = || 5;
     let write = |val: i32| println!("output: {}", val);
     compute(&mut ops, read, write);
 
@@ -126,8 +172,13 @@ fn main() -> ResultX<()> {
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn exploration() {}
+#[test]
+fn input_is_8_true() -> ResultX<()> {
+    let mut ops = init_ops("3,9,8,9,10,9,4,9,99,-1,8".to_string())?;
+    let read = || 8;
+    let mut result: Option<i32> = { None };
+    let write = |val: i32| result = Some(val);
+    compute(&mut ops, read, write);
+    assert_eq!(result, Some(1));
+    Ok(())
 }
