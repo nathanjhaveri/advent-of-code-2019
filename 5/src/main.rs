@@ -1,19 +1,17 @@
 use std::error::Error;
 use std::fs::read_to_string;
 
+// OpCodes - would be better as an enum, but needs lots
+// of annoying conversion logic
 const ADD: i32 = 1;
 const MULTIPLY: i32 = 2;
 const INPUT: i32 = 3;
 const OUTPUT: i32 = 4;
+const JUMP_IF_TRUE: i32 = 5;
+const JUMP_IF_FALSE: i32 = 6;
+const LESS_THAN: i32 = 7;
+const EQUALS: i32 = 8;
 const HCF: i32 = 99;
-
-enum OpCode {
-    Add = 1,
-    Multiply = 2,
-    Input = 3,
-    Output = 4,
-    Hcf = 99,
-}
 
 enum OpMode {
     Positional = 0,
@@ -49,7 +47,7 @@ fn resolve_op(ops: &Ops, index: usize, mode: OpMode) -> i32 {
     }
 }
 
-fn compute(ops: &mut Ops) {
+fn compute(ops: &mut Ops, read: fn() -> i32, write: fn(i32)) {
     // ip - instruction pointer
     // a - first register
     // b - second register
@@ -75,7 +73,7 @@ fn compute(ops: &mut Ops) {
                 ip += 1;
 
                 ops[rp] = a + b;
-            },
+            }
             MULTIPLY => {
                 let a = resolve_op(ops, ip, mode1);
                 ip += 1;
@@ -85,18 +83,17 @@ fn compute(ops: &mut Ops) {
                 ip += 1;
 
                 ops[rp] = a * b;
-            },
+            }
             INPUT => {
-                println!("input should only happen once");
                 let input_index = ops[ip] as usize;
-                ops[input_index] = 1;
+                ops[input_index] = read();
                 ip += 1
-            },
+            }
             OUTPUT => {
                 let input_index = ops[ip] as usize;
-                println!("output {}", ops[input_index]);
+                write(ops[input_index]);
                 ip += 1;
-            },
+            }
             _ => panic!("Unrecognized instruction {}", op),
         };
     }
@@ -120,7 +117,9 @@ fn main() -> ResultX<()> {
     let input = read_to_string("input.txt")?;
     let mut ops = init_ops(input)?;
 
-    compute(&mut ops);
+    let read = || 1;
+    let write = |val: i32| println!("output: {}", val);
+    compute(&mut ops, read, write);
 
     println!("{:?}", ops);
 
