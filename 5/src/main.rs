@@ -32,7 +32,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 type Ops = [i32];
 
 fn parse_op(coded_op: i32) -> (i32, OpMode, OpMode, OpMode) {
-    let op = nth_digit(0, coded_op) + 10 * nth_digit(1, coded_op);
+    let op = coded_op % 100;
     let mode1 = OpMode::from(nth_digit(2, coded_op));
     let mode2 = OpMode::from(nth_digit(3, coded_op));
     let mode3 = OpMode::from(nth_digit(4, coded_op));
