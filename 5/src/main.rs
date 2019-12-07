@@ -1,15 +1,14 @@
+use intcode::{compute, init_ops, Result};
 use std::fs::read_to_string;
-use intcode::{Result, compute, init_ops};
 
 fn main() -> Result<()> {
     let input = read_to_string("input.txt")?;
     let mut ops = init_ops(&input)?;
 
-    let read = || 5;
-    let write = |val: i32| println!("output: {}", val);
-    compute(&mut ops, read, write);
+    let input = vec![5];
+    let output = compute(&mut ops, &input);
 
-    println!("{:?}", ops);
+    println!("{:?}", output);
 
     Ok(())
 }
@@ -22,12 +21,10 @@ mod tests {
 
     fn run_program(program: &str, input: i32) -> i32 {
         let mut ops = init_ops(program).unwrap();
-        let read = || input;
-        let mut result: Option<i32> = { None };
-        let write = |val: i32| result = Some(val);
-        compute(&mut ops, read, write);
+        let read = vec![input];
+        let output = compute(&mut ops, &read);
 
-        result.expect("No ouput")
+        *output.last().expect("No output")
     }
 
     #[test]
@@ -47,9 +44,8 @@ mod tests {
         let mut ops = init_ops(PROGRAM_2).unwrap();
         ops[1] = 12;
         ops[2] = 2;
-        let read = || 1;
-        let write = |_: i32| ();
-        compute(&mut ops, read, write);
+        let read = vec![1];
+        compute(&mut ops, &read);
 
         assert_eq!(5_482_655, ops[0]);
     }

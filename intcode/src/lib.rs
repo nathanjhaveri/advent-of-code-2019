@@ -28,7 +28,7 @@ impl From<i32> for OpMode {
 }
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
-pub type Ops = [i32];
+pub type Ops = Vec<i32>;
 
 fn parse_op(coded_op: i32) -> (i32, OpMode, OpMode, OpMode) {
     let op = coded_op % 100;
@@ -46,16 +46,10 @@ fn resolve_op(ops: &Ops, index: usize, mode: OpMode) -> i32 {
     }
 }
 
-pub fn compute<RF, WF>(ops: &mut Ops, read: RF, mut write: WF)
-where
-    RF: Fn() -> i32,
-    WF: FnMut(i32),
-{
-    // ip - instruction pointer
-    // a - first register
-    // b - second register
-    // r - result register
+pub fn compute(ops: &mut Ops, input: &[i32]) -> Vec<i32> {
     let mut ip = 0; // Instruction pointer
+    let mut output = Vec::new();
+    let mut read = input.into_iter();
 
     loop {
         let coded_op = ops[ip];
@@ -63,7 +57,7 @@ where
         ip += 1;
 
         if op == HCF {
-            return;
+            return output;
         }
 
         match op {
@@ -89,12 +83,12 @@ where
             }
             INPUT => {
                 let input_index = ops[ip] as usize;
-                ops[input_index] = read();
+                ops[input_index] = *read.next().expect("End of input");
                 ip += 1
             }
             OUTPUT => {
                 let input_index = ops[ip] as usize;
-                write(ops[input_index]);
+                output.push(ops[input_index]);
                 ip += 1;
             }
             JUMP_IF_TRUE => {
@@ -148,7 +142,7 @@ fn nth_digit(n: u32, number: i32) -> i32 {
     (number / 10i32.pow(n)) % 10
 }
 
-pub fn init_ops(input: &str) -> Result<Vec<i32>> {
+pub fn init_ops(input: &str) -> Result<Ops> {
     let mut ops: Vec<i32> = Vec::new();
     for op_str in input.split(',') {
         let op: i32 = op_str.parse()?;
@@ -166,12 +160,10 @@ mod tests {
 
     fn run_program(program: &str, input: i32) -> i32 {
         let mut ops = init_ops(program).unwrap();
-        let read = || input;
-        let mut result: Option<i32> = { None };
-        let write = |val: i32| result = Some(val);
-        compute(&mut ops, read, write);
+        let read = vec![input];
+        let output = compute(&mut ops, &read);
 
-        result.expect("No ouput")
+        *output.last().expect("No ouput")
     }
 
     #[test]
@@ -191,9 +183,8 @@ mod tests {
         let mut ops = init_ops(PROGRAM_2).unwrap();
         ops[1] = 12;
         ops[2] = 2;
-        let read = || 1;
-        let write = |_: i32| ();
-        compute(&mut ops, read, write);
+        let read = vec![1];
+        compute(&mut ops, &read);
 
         assert_eq!(5_482_655, ops[0]);
     }
