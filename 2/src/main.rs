@@ -31,7 +31,7 @@ fn compute(ops: &mut Vec<u32>) {
     }
 }
 
-type Result<T> = Result<T, Box<dyn Error>;
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn init() -> Result<Vec<u32>> {
     let input = read_to_string("input.txt")?;

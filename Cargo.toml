@@ -1,0 +1,14 @@
+[workspace]
+
+members = [
+    "intcode",
+    "1/masscalc",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6/orbit",
+    "7",
+]
+
+default-members = ["7"]

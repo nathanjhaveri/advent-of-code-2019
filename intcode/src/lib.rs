@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::fs::read_to_string;
 
 // OpCodes - would be better as an enum, but needs lots
 // of annoying conversion logic

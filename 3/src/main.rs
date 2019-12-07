@@ -9,12 +9,6 @@ struct Point {
     travel_steps: u32
 }
 
-impl Point {
-    fn distance(&self) -> i32 {
-        self.x.abs() + self.y.abs()
-    }
-}
-
 #[derive(Debug)]
 struct Line {
     pub start: Point,
@@ -40,7 +34,7 @@ fn find_distance(input: String) -> Result<u32, Box<dyn Error>> {
     intersections.sort_by(|a, b| a.travel_steps.cmp(&b.travel_steps));
     let first = intersections.first().unwrap();
 
-    println!("first {:?}", intersections.first().unwrap());
+    //println!("first {:?}", intersections.first().unwrap());
 
     Ok(first.travel_steps)
 }
@@ -128,7 +122,7 @@ fn intersection(line1: &Line, line2: &Line) -> Option<Point> {
             let travel_steps: u32 = horz.start.travel_steps + vert.start.travel_steps + ((horz.start.x - x).abs() + (vert.start.y - y).abs()) as u32;
             let overlap = Point { x, y, travel_steps, };
 
-            println!("found intersecton\nLine1: {:?}\nLine2: {:?}\npoint: {:?}", horz, vert, overlap);
+            //println!("found intersecton\nLine1: {:?}\nLine2: {:?}\npoint: {:?}", horz, vert, overlap);
             return Some(overlap)
         }
     }
@@ -150,9 +144,9 @@ mod tests {
 
     #[test]
     fn find_itersection() {
-        let origin = Point { x: 0, y: 0, travel_steps: 0 };
-        let y = Point { x: 0, y: 2, travel_steps: 0, };
-        let x = Point { x: 2, y: 0, travel_steps: 0, };
+        let origin = Point { x: 1, y: 1, travel_steps: 0 };
+        let y = Point { x: 3, y: 1, travel_steps: 0, };
+        let x = Point { x: 1, y: 3, travel_steps: 0, };
         let line1 = Line { start: origin, end: y };
         let line2 = Line { start: origin, end: x };
 
@@ -166,7 +160,7 @@ mod tests {
         let input = "R8,U5,L5,D3\nU7,R6,D4,L4".to_string();
         let distance = find_distance(input).unwrap();
 
-        assert_eq!(6, distance);
+        assert_eq!(30, distance);
     }
 
     #[test]

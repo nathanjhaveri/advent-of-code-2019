@@ -42,13 +42,13 @@ fn increasing(digits: Password) -> bool {
     digits[4] <= digits[5]
 }
 
-fn two_adjacent_same(digits: Password) -> bool {
-    digits[0] == digits[1] ||
-    digits[1] == digits[2] ||
-    digits[2] == digits[3] ||
-    digits[3] == digits[4] ||
-    digits[4] == digits[5]
-}
+//fn two_adjacent_same(digits: Password) -> bool {
+//    digits[0] == digits[1] ||
+//    digits[1] == digits[2] ||
+//    digits[2] == digits[3] ||
+//    digits[3] == digits[4] ||
+//    digits[4] == digits[5]
+//}
 
 fn only_two_adjacent_same(digits: Password) -> bool {
     let mut i = 0;
@@ -88,6 +88,5 @@ fn nth_digit(n: u32, number: i32) -> i32 {
 fn name() {
     let lower = 111110;
     let upper = 111112;
-    println!("YO {}", (1234 / 10) % 10);
-    assert_eq!(1, find_valid(lower, upper));
+    assert_eq!(0, find_valid(lower, upper));
 }
