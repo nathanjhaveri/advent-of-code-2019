@@ -2,24 +2,11 @@ const LAYER_WIDTH: usize = 25;
 const LAYER_HEIGHT: usize = 6;
 const PIXELS_PER_LAYER: usize = LAYER_WIDTH * LAYER_HEIGHT;
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 enum Pixel {
     Black = 0,
     White = 1,
     Transparent = 2,
-}
-
-fn load_image(image_str: &str) -> Vec<u8> {
-    image_str
-        .chars()
-        .filter(|&c| c != '\n')
-        .map(|c| match c {
-            '0' => 0,
-            '1' => 1,
-            '2' => 2,
-            _ => panic!("Unexpected pixel: {}", c),
-        })
-        .collect()
 }
 
 fn load_pixels(image_str: &str) -> Vec<Pixel> {
@@ -36,7 +23,7 @@ fn load_pixels(image_str: &str) -> Vec<Pixel> {
 }
 
 pub fn count_image(image_str: &str) -> u32 {
-    let image = load_image(image_str);
+    let image = load_pixels(image_str);
     let mut counts = Vec::new();
     let layer_count = image.len() / PIXELS_PER_LAYER;
 
@@ -75,7 +62,7 @@ pub fn print_image(image: &str) -> String {
             let printable = match image[pixel_index] {
                 Pixel::Transparent => panic!("Can't print transparent pixel at {}", pixel_index),
                 Pixel::Black => ' ',
-                Pixel::White => '\u{2588}', // Solid box
+                Pixel::White => '█',
             };
 
             printed.push(printable);
