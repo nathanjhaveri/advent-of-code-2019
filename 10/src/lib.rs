@@ -13,9 +13,6 @@ impl Point {
         // Returns true iff a is between c & d
         // Lower x value is "before".  If a.x == b.x == c.x, then
         // lower y value is "before".
-        if self == b || self == c || b == c {
-            panic!("a, b, c must be different {:?} {:?} {:?}", self, b, c);
-        }
 
         // before is smaller x, unless vertical line then smaller y
         let left_to_right_between = if self.x == b.x && self.x == c.x {
@@ -51,27 +48,16 @@ pub fn max_visible_points(input: &str) -> (Point, usize) {
         hidden_from_i.insert(i); // P can't see itself
 
         for j in 0..count {
-            if hidden_from_i.contains(&j) {
-                continue;
-            }
-
             for k in (j + 1)..count {
-                if hidden_from_i.contains(&k) {
-                    continue;
-                }
-
                 if points[j].between(points[i], points[k]) {
-                    //println!("i: {}, j: {} blocks k: {}", i, j, k);
                     hidden_from_i.insert(k);
                 } else if points[k].between(points[i], points[j]) {
-                    //println!("i: {}, k: {} blocks j: {}", i, k, j);
                     hidden_from_i.insert(j);
                 }
             }
         }
 
         let visible_from_i = count - hidden_from_i.len();
-        //println!("{} for {:?}", visible_from_i, points[i]);
         if max_visible < visible_from_i {
             max_visible = visible_from_i;
             max_index = i;
