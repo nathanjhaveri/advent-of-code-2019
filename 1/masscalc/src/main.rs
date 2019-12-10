@@ -1,6 +1,6 @@
-use std::error::{Error};
+use std::error::Error;
 use std::fs::File;
-use std::io::{BufReader, BufRead};
+use std::io::{BufRead, BufReader};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let f = File::open("input.txt")?;
@@ -23,4 +23,3 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn fuel_needed(mass: i32) -> i32 {
     mass / 3 - 2
 }
-

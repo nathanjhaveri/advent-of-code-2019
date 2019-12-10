@@ -10,7 +10,7 @@ fn compute(ops: &mut Vec<u32>) {
     // a - first register
     // b - second register
     // r - result register
-    let mut ip = 0;  // Instruction pointer
+    let mut ip = 0; // Instruction pointer
 
     let mut op = ops[ip];
 
@@ -22,7 +22,7 @@ fn compute(ops: &mut Vec<u32>) {
         let x = match op {
             ADD => ops[ap] + ops[bp],
             MULTIPLY => ops[ap] * ops[bp],
-            _ => panic!("Unrecognized instruction")
+            _ => panic!("Unrecognized instruction"),
         };
 
         ops[rp] = x;
@@ -70,6 +70,5 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn exploration() {
-    }
+    fn exploration() {}
 }

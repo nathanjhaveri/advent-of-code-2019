@@ -8,14 +8,14 @@ fn main() {
     println!("valid: {}", valid);
 }
 
-fn find_valid(lower: i32, upper: i32) -> i32 {  
+fn find_valid(lower: i32, upper: i32) -> i32 {
     let mut count = 0;
     for number in lower..upper {
         let digits = digits(number);
         //println!("number {:?}", number);
         //println!("digits {:?}", digits);
 
-        if only_two_adjacent_same(digits) && increasing(digits){
+        if only_two_adjacent_same(digits) && increasing(digits) {
             count += 1;
         }
     }
@@ -35,11 +35,11 @@ fn digits(number: i32) -> Password {
 }
 
 fn increasing(digits: Password) -> bool {
-    digits[0] <= digits[1] &&
-    digits[1] <= digits[2] &&
-    digits[2] <= digits[3] &&
-    digits[3] <= digits[4] &&
-    digits[4] <= digits[5]
+    digits[0] <= digits[1]
+        && digits[1] <= digits[2]
+        && digits[2] <= digits[3]
+        && digits[3] <= digits[4]
+        && digits[4] <= digits[5]
 }
 
 //fn two_adjacent_same(digits: Password) -> bool {
@@ -78,7 +78,6 @@ fn only_two_adjacent_same(digits: Password) -> bool {
 
     return false;
 }
-
 
 fn nth_digit(n: u32, number: i32) -> i32 {
     (number / 10i32.pow(n)) % 10

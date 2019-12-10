@@ -70,7 +70,7 @@ fn distance_to_santa(orbit_map: &OrbitMap) -> u32 {
     let you_parent_dist = count_distance(orbit_map, YOU, common_parent);
     let san_parent_dist = count_distance(orbit_map, SAN, common_parent);
 
-    you_parent_dist + san_parent_dist - 2  // -2 because we want the same orbit, not node
+    you_parent_dist + san_parent_dist - 2 // -2 because we want the same orbit, not node
 }
 
 #[cfg(test)]
