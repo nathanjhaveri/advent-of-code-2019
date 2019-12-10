@@ -1,6 +1,6 @@
 use std::error::Error;
 
-type OpSize = i64;
+pub type OpSize = i64;
 const MEMORY_SIZE: usize = 1500;
 
 // OpCodes - would be better as an enum, but needs lots
@@ -61,7 +61,7 @@ impl IntCode {
         IntCode::init(ops)
     }
 
-    fn init(ops: Ops) -> IntCode {
+    pub fn init(ops: Ops) -> IntCode {
         IntCode {
             ops,
             ip: 0,
@@ -80,10 +80,12 @@ impl IntCode {
         *self.output.last().expect("No output")
     }
 
+    pub fn output(&self) -> &Vec<OpSize> {
+        &self.output
+    }
+
     pub fn run(&mut self) {
-        while let Some(out) = self.compute_output() {
-            self.output.push(out);
-        }
+        while let Some(_) = self.compute_output() {}
     }
 
     pub fn compute_output(&mut self) -> Option<OpSize> {
@@ -130,6 +132,7 @@ impl IntCode {
                 OUTPUT => {
                     let out = self.resolve_op(mode1);
                     self.ip += 1;
+                    self.output.push(out);
                     return Some(out);
                 }
                 JUMP_IF_TRUE => {
