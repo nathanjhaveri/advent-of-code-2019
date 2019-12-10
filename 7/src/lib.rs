@@ -1,12 +1,12 @@
-use intcode::{IntCode, OpSize};
+use intcode::{IntCode, Op};
 use std::ops::Range;
 
 const AMP_COUNT: usize = 5;
-const PHASE_RANGE: Range<OpSize> = 0..5;
-const PHASE_RANGE_REPEAT: Range<OpSize> = 5..10;
-pub type PhaseSettings = [OpSize; AMP_COUNT];
+const PHASE_RANGE: Range<Op> = 0..5;
+const PHASE_RANGE_REPEAT: Range<Op> = 5..10;
+pub type PhaseSettings = [Op; AMP_COUNT];
 
-pub fn find_max_phase_setting(program: &str) -> (OpSize, PhaseSettings) {
+pub fn find_max_phase_setting(program: &str) -> (Op, PhaseSettings) {
     let mut max_thruster = 0;
     let mut phase_settings: PhaseSettings = [0; AMP_COUNT];
 
@@ -32,7 +32,7 @@ pub fn find_max_phase_setting(program: &str) -> (OpSize, PhaseSettings) {
     (max_thruster, phase_settings)
 }
 
-fn thruster_signal(program: &str, phase_settings: &PhaseSettings) -> OpSize {
+fn thruster_signal(program: &str, phase_settings: &PhaseSettings) -> Op {
     let mut input_signal = 0;
     for &setting in phase_settings {
         let program_input = [setting, input_signal];
@@ -65,7 +65,7 @@ fn valid_feedback_phase_setting(phase: &PhaseSettings) -> bool {
     contains_all
 }
 
-fn feedback(program: &str, phase: &PhaseSettings) -> OpSize {
+fn feedback(program: &str, phase: &PhaseSettings) -> Op {
     let mut output = Some(0);
     let mut amps: Vec<IntCode> = (0..AMP_COUNT).map(|_| IntCode::new(program)).collect();
 
@@ -85,7 +85,7 @@ fn feedback(program: &str, phase: &PhaseSettings) -> OpSize {
     amps[AMP_COUNT - 1].last_output()
 }
 
-pub fn find_max_feedback_phase_setting(program: &str) -> (OpSize, PhaseSettings) {
+pub fn find_max_feedback_phase_setting(program: &str) -> (Op, PhaseSettings) {
     let mut max_thruster = 0;
     let mut phase_settings: PhaseSettings = [0; AMP_COUNT];
 
