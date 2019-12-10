@@ -34,8 +34,8 @@ pub fn find_max_phase_setting(program: &str) -> (OpSize, PhaseSettings) {
 
 fn thruster_signal(program: &str, phase_settings: &PhaseSettings) -> OpSize {
     let mut input_signal = 0;
-    for i in 0..AMP_COUNT {
-        let program_input = [phase_settings[i], input_signal];
+    for &setting in phase_settings {
+        let program_input = [setting, input_signal];
         let mut computer = IntCode::new(program);
         for &input in program_input.iter() {
             computer.input(input);

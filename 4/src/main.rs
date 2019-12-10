@@ -1,8 +1,8 @@
 type Password = [i32; 6];
 
 fn main() {
-    let lower = 372304;
-    let upper = 847060;
+    let lower = 372_304;
+    let upper = 847_060;
     let valid = find_valid(lower, upper);
 
     println!("valid: {}", valid);
@@ -76,7 +76,7 @@ fn only_two_adjacent_same(digits: Password) -> bool {
         i += 1;
     }
 
-    return false;
+    false
 }
 
 fn nth_digit(n: u32, number: i32) -> i32 {
@@ -85,7 +85,7 @@ fn nth_digit(n: u32, number: i32) -> i32 {
 
 #[test]
 fn name() {
-    let lower = 111110;
-    let upper = 111112;
+    let lower = 111_110;
+    let upper = 111_112;
     assert_eq!(0, find_valid(lower, upper));
 }

@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn find_distance(input: String) -> Result<u32, Box<dyn Error>> {
-    let mut segments = input.split("\n");
+    let mut segments = input.split('\n');
     let wire1 = wire_segments(segments.next().unwrap());
     let wire2 = wire_segments(segments.next().unwrap());
 
@@ -45,7 +45,7 @@ fn wire_segments(line: &str) -> Vec<Line> {
     let mut acc: u32 = 0;
 
     let segments: Vec<Line> = line
-        .split(",")
+        .split(',')
         .map(|op| -> Line {
             let count: i32 = op[1..].parse().unwrap();
             let dir = &op[0..1];
@@ -77,7 +77,7 @@ fn wire_segments(line: &str) -> Vec<Line> {
             y = endy;
             acc = travel_steps;
 
-            return segment;
+            segment
         })
         .collect();
 
@@ -89,8 +89,8 @@ fn find_intersections(wire1: Vec<Line>, wire2: Vec<Line>) -> Vec<Point> {
     for line1 in wire1.iter() {
         for line2 in wire2.iter() {
             let point = intersection(line1, line2);
-            if point.is_some() {
-                intersections.push(point.unwrap());
+            if let Some(point) = point {
+                intersections.push(point);
             }
         }
     }

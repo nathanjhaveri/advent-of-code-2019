@@ -36,7 +36,7 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 fn init() -> Result<Vec<u32>> {
     let input = read_to_string("input.txt")?;
     let mut ops: Vec<u32> = Vec::new();
-    for op_str in input.split(",") {
+    for op_str in input.split(',') {
         let op: u32 = op_str.parse()?;
         ops.push(op);
     }
@@ -45,7 +45,7 @@ fn init() -> Result<Vec<u32>> {
 }
 
 fn main() -> Result<()> {
-    let target = 19690720;
+    let target = 19_690_720;
 
     // Dumb brute force
     for a in 1..100 {
