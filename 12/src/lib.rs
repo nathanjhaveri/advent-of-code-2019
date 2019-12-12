@@ -17,7 +17,7 @@ impl Moon {
     }
 }
 
-pub fn velocity(moons: &mut [&mut Moon]) {
+pub fn velocity(moons: &mut [Moon]) {
     for moon in moons {
         for dim in 0..DIMMENSION {
             moon.pos[dim] += moon.vel[dim];
@@ -25,22 +25,17 @@ pub fn velocity(moons: &mut [&mut Moon]) {
     }
 }
 
-pub fn gravity(moons: &mut [&mut Moon]) {
+pub fn gravity(moons: &mut [Moon]) {
     let count = moons.len();
     for i in 0..count {
         for j in i..count {
-            let mut_moons = moons.as_mut_ptr();
-            unsafe {
-                let first: *mut &mut Moon = mut_moons.add(i);
-                let second: *mut &mut Moon = mut_moons.add(j);
-                for dim in 0..DIMMENSION {
-                    if (*first).pos[dim] < (*second).pos[dim] {
-                        (*first).vel[dim] += 1;
-                        (*second).vel[dim] -= 1;
-                    } else if (*second).pos[dim] < (*first).pos[dim] {
-                        (*first).vel[dim] -= 1;
-                        (*second).vel[dim] += 1;
-                    }
+            for dim in 0..DIMMENSION {
+                if moons[i].pos[dim] < moons[j].pos[dim] {
+                    moons[i].vel[dim] += 1;
+                    moons[j].vel[dim] -= 1;
+                } else if moons[j].pos[dim] < moons[i].pos[dim] {
+                    moons[i].vel[dim] -= 1;
+                    moons[j].vel[dim] += 1;
                 }
             }
         }
@@ -55,8 +50,19 @@ fn kenetic_energy(moon: &Moon) -> Int {
     moon.vel.iter().map(|&p| p.abs()).sum()
 }
 
-pub fn total_energy(moon: &Moon) -> Int {
+fn total_energy_moon(moon: &Moon) -> Int {
     potential_energy(moon) * kenetic_energy(moon)
+}
+
+pub fn advance_state(time: Int, moons: &mut [Moon]) {
+    for _ in 0..time {
+        gravity(moons);
+        velocity(moons);
+    }
+}
+
+pub fn total_energy_universe(moons: &[Moon]) -> Int {
+    moons.iter().map(|moon| total_energy_moon(moon)).sum()
 }
 
 #[cfg(test)]
@@ -70,27 +76,13 @@ mod tests {
         // <x=4, y=-8, z=8>
         // <x=3, y=5, z=-1>
 
-        let mut io = Moon::new([-1, 0, 2]);
-        let mut europa = Moon::new([2, -10, -7]);
-        let mut ganymede = Moon::new([4, -8, 8]);
-        let mut callisto = Moon::new([3, 5, -1]);
-        let mut moons = [&mut io, &mut europa, &mut ganymede, &mut callisto];
-
-        for i in 0..10 {
-            println!("Step: {}", i);
-            for (i, moon) in moons.iter().enumerate() {
-                println!("moon {} {:?}", i, moon);
-            }
-
-            gravity(&mut moons);
-            velocity(&mut moons);
-        }
-
-        let mut enery = 0;
-        for moon in moons.iter() {
-            enery += total_energy(moon);
-        }
-        assert_eq!(179, enery);
+        let io = Moon::new([-1, 0, 2]);
+        let europa = Moon::new([2, -10, -7]);
+        let ganymede = Moon::new([4, -8, 8]);
+        let callisto = Moon::new([3, 5, -1]);
+        let mut moons = [io, europa, ganymede, callisto];
+        advance_state(10, &mut moons);
+        assert_eq!(179, total_energy_universe(&moons));
     }
 
     #[test]
@@ -100,11 +92,11 @@ mod tests {
         // <x=2, y=-7, z=3>
         // <x=9, y=-8, z=-3>
 
-        let mut io = Moon::new([-8, -10, 0]);
-        let mut europa = Moon::new([5, 5, 10]);
-        let mut ganymede = Moon::new([2, -7, 3]);
-        let mut callisto = Moon::new([9, -8, -3]);
-        let mut moons = [&mut io, &mut europa, &mut ganymede, &mut callisto];
+        let io = Moon::new([-8, -10, 0]);
+        let europa = Moon::new([5, 5, 10]);
+        let ganymede = Moon::new([2, -7, 3]);
+        let callisto = Moon::new([9, -8, -3]);
+        let mut moons = [io, europa, ganymede, callisto];
 
         for i in 0..100 {
             if i % 10 == 0 {
@@ -120,7 +112,7 @@ mod tests {
 
         let mut enery = 0;
         for moon in moons.iter() {
-            enery += total_energy(moon);
+            enery += total_energy_moon(moon);
         }
         assert_eq!(1940, enery);
     }
@@ -131,12 +123,11 @@ mod tests {
         // <x=-1, y=-9, z=-4>
         // <x=17, y=6, z=8>
         // <x=12, y=4, z=2>
-
-        let mut io = Moon::new([1, 2, -9]);
-        let mut europa = Moon::new([-1, -9, -4]);
-        let mut ganymede = Moon::new([17, 6, 8]);
-        let mut callisto = Moon::new([12, 4, 2]);
-        let mut moons = [&mut io, &mut europa, &mut ganymede, &mut callisto];
+        let io = Moon::new([1, 2, -9]);
+        let europa = Moon::new([-1, -9, -4]);
+        let ganymede = Moon::new([17, 6, 8]);
+        let callisto = Moon::new([12, 4, 2]);
+        let mut moons = [io, europa, ganymede, callisto];
 
         for _ in 0..1000 {
             gravity(&mut moons);
@@ -145,7 +136,7 @@ mod tests {
 
         let mut enery = 0;
         for moon in moons.iter() {
-            enery += total_energy(moon);
+            enery += total_energy_moon(moon);
         }
         assert_eq!(7471, enery);
     }
