@@ -114,6 +114,13 @@ name = "ten"
 version = "0.1.0"
 
 [[package]]
+name = "thirteen"
+version = "0.1.0"
+dependencies = [
+ "intcode 0.1.0",
+]
+
+[[package]]
 name = "three"
 version = "0.1.0"
 

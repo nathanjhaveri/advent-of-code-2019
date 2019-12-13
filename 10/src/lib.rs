@@ -98,10 +98,6 @@ mod tests {
         assert_eq!(point, Point { x: 22, y: 19 });
     }
 
-    fn ten_2() {
-        parse(PUZZLE_10);
-    }
-
     #[test]
     fn verify_parse() {
         let input = ".#..#

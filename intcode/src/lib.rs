@@ -13,7 +13,7 @@ pub struct IntCode {
     output: Vec<Op>,
 }
 
-const MEMORY_SIZE: usize = 1500;
+const MEMORY_SIZE: usize = 5000;
 // OpCodes - would be better as an enum, but needs lots
 // of annoying conversion logic
 const ADD: Op = 1;
