@@ -31,15 +31,33 @@ const PROGRAM_13: &str = "1,380,379,385,1008,2655,455702,381,1005,381,12,99,109,
 pub fn count_blocks() -> Result<usize, Error> {
     let mut computer = IntCode::new(PROGRAM_13);
     let mut count = 0;
-    while let Some(_x) = computer.compute_output() {
-        let _y = computer.compute_output().ok_or("Expected y")?;
+    while let Some(x) = computer.compute_output() {
+        let y = computer.compute_output().ok_or("Expected y")?;
         let block = computer.compute_output().ok_or("Expected block")?;
+        println!("x, y, block: {}, {}, {}", x, y, block);
         if Tile::Block == Tile::try_from(block)? {
             count += 1
         }
     }
 
     Ok(count)
+}
+
+pub fn draw_blocks(input: &Op) -> Result<String, Error> {
+    let mut computer = IntCode::new(PROGRAM_13);
+    computer.ops[0] = 2;
+    let mut count = 0;
+
+    while let Some(x) = computer.compute_output() {
+        let y = computer.compute_output().ok_or("Expected y")?;
+        let block = computer.compute_output().ok_or("Expected block")?;
+        println!("x, y, block: {}, {}, {}", x, y, block);
+        if Tile::Block == Tile::try_from(block)? {
+            count += 1
+        }
+    }
+
+    Ok("hi")
 }
 
 #[cfg(test)]
