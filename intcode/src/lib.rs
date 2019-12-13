@@ -5,7 +5,7 @@ pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
 pub type Ops = Vec<Op>;
 
 pub struct IntCode {
-    ops: Ops,
+    pub ops: Ops,
     ip: usize,
     input_pos: usize,
     relative_base: Op,

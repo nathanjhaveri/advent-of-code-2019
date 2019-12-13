@@ -8,3 +8,9 @@ edition = "2018"
 
 [dependencies]
 intcode = { path = "../intcode" }
+termion = "*"
+
+
+[[bin]]
+name = "breakout"
+path = "src/bin.rs"
