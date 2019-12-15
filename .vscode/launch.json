@@ -7,12 +7,18 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "thirteen",
+            "name": "14",
             "cargo": {
                 "args": [
-                    "run",
-                    "--package=thirteen"
-                ]
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=fourteen"
+                ],
+                "filter": {
+                    "name": "fourteen",
+                    "kind": "lib"
+                }
             },
             "args": [],
             "cwd": "${workspaceFolder}"
