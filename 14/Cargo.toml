@@ -8,3 +8,7 @@ edition = "2018"
 
 [dependencies]
 regex = "1"
+
+[[bin]]
+name = "fourteen"
+path = "src/bin.rs"

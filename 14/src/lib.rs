@@ -32,7 +32,7 @@ pub struct Equation<'a> {
     output: Chem<'a>,
 }
 
-fn parse_formulas<'a>(input: &'a str) -> Result<Equations> {
+pub fn parse_formulas<'a>(input: &'a str) -> Result<Equations> {
     let mut formula = Equations::new();
     for line in input.lines() {
         let eq: Vec<&str> = line.trim().split("=>").collect();
@@ -49,13 +49,15 @@ fn parse_formulas<'a>(input: &'a str) -> Result<Equations> {
     Ok(formula)
 }
 
-pub fn ore_for_fuel(equations: &Equations) -> ChemAmount {
-    let fuel_eq = equations.get("FUEL").expect("No fuel equasion");
+pub fn ore_for_fuel(equations: &Equations, fuel: ChemAmount) -> ChemAmount {
     let mut ore = 0;
     let mut to_make: Vec<Chem> = Vec::new();
     let mut extra: HashMap<&str, usize> = equations.keys().map(|&k| (k, 0)).collect();
 
-    to_make.push(fuel_eq.output);
+    to_make.push(Chem {
+        name: "FUEL",
+        amount: fuel,
+    });
 
     while let Some(chem_to_make) = to_make.pop() {
         if chem_to_make.name == "ORE" {
@@ -74,22 +76,21 @@ pub fn ore_for_fuel(equations: &Equations) -> ChemAmount {
 
         if needed > 0 {
             // After slush fund is used, use equasion to make more, queue up parts
-            let equasion = &equations[chem_to_make.name];
+            let equation = &equations[chem_to_make.name];
 
             // How many instances of chem eq need to run?
-            let mut multiplier = 1;
-            while equasion.output.amount * multiplier < needed {
-                multiplier += 1;
-            }
+            // (x + y - 1) / y  is x/y rounded up instead of down
+            let multiplier = (needed + equation.output.amount - 1) / equation.output.amount;
 
-            for _ in 0..multiplier {
-                // Add output to slush fund
-                *extra.get_mut(equasion.output.name).unwrap() += equasion.output.amount;
+            // Add output to slush fund
+            *extra.get_mut(equation.output.name).unwrap() += equation.output.amount * multiplier;
 
-                // queue up inputs to make
-                for &e in equasion.inputs.iter() {
-                    to_make.push(e);
-                }
+            // queue up inputs to make
+            for &input in equation.inputs.iter() {
+                to_make.push(Chem {
+                    name: input.name,
+                    amount: input.amount * multiplier,
+                });
             }
 
             to_make.push(chem_to_make); // Repush since output has not been spent yet
@@ -99,17 +100,41 @@ pub fn ore_for_fuel(equations: &Equations) -> ChemAmount {
     ore
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    const EXAMPLE_1: &str = "10 ORE => 10 A
-                            1 ORE => 1 B
-                            7 A, 1 B => 1 C
-                            7 A, 1 C => 1 D
-                            7 A, 1 D => 1 E
-                            7 A, 1 E => 1 FUEL";
+pub fn find_fuel_for_ore(equations: &Equations, ore: ChemAmount) -> ChemAmount {
+    let mut lower = 0;
+    let mut upper = 8_388_608;
 
-    const FOURTEEN_1: &str = "1 HVXJL, 1 JHGQ => 2 ZQFQ
+    let mut current_ore = 694_999_561;
+    while current_ore < ore {
+        lower = upper;
+        upper *= 2;
+        current_ore = ore_for_fuel(equations, upper);
+        println!("upper, lower, ore: {}, {}, {}", upper, lower, current_ore);
+    }
+
+    while lower < upper {
+        let mid = (lower + upper) / 2;
+        current_ore = ore_for_fuel(equations, mid);
+
+        println!(
+            "upper, lower, mid, ore: {}, {}, {}, {}",
+            upper, lower, mid, current_ore
+        );
+        if current_ore < ore {
+            lower = mid + 1;
+        } else if current_ore > ore {
+            upper = mid - 1;
+        } else {
+            return upper;
+        }
+    }
+
+    println!("upper, lower: {}, {}", upper, lower);
+
+    lower
+}
+
+pub const FOURTEEN: &str = "1 HVXJL, 1 JHGQ => 2 ZQFQ
     6 GRQTX => 6 VZWRS
     128 ORE => 2 GRQTX
     1 MJPSW => 4 MGZBH
@@ -172,6 +197,16 @@ mod tests {
     1 MJPSW, 2 VZWRS => 4 ZWXT
     1 MGZBH, 1 GRQTX => 8 PVJM";
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const EXAMPLE_1: &str = "10 ORE => 10 A
+                            1 ORE => 1 B
+                            7 A, 1 B => 1 C
+                            7 A, 1 C => 1 D
+                            7 A, 1 D => 1 E
+                            7 A, 1 E => 1 FUEL";
+
     #[test]
     fn verify_parse() -> Result<()> {
         let formula = parse_formulas(EXAMPLE_1)?;
@@ -188,9 +223,18 @@ mod tests {
 
     #[test]
     fn fourteen_1() -> Result<()> {
-        let formulas = parse_formulas(FOURTEEN_1)?;
-        let ore = ore_for_fuel(&formulas);
-        assert_eq!(ore, 216477);
+        let formulas = parse_formulas(FOURTEEN)?;
+        let ore = ore_for_fuel(&formulas, 1);
+        assert_eq!(ore, 216_477);
+
+        Ok(())
+    }
+
+    #[test]
+    fn fourteen_2() -> Result<()> {
+        let formulas = parse_formulas(FOURTEEN)?;
+        let fuel = find_fuel_for_ore(&formulas, 1_000_000_000_000);
+        assert_eq!(fuel, 11_788_286);
 
         Ok(())
     }
@@ -198,7 +242,7 @@ mod tests {
     #[test]
     fn example_1() -> Result<()> {
         let formulas = parse_formulas(EXAMPLE_1)?;
-        let ore = ore_for_fuel(&formulas);
+        let ore = ore_for_fuel(&formulas, 1);
         assert_eq!(ore, 31);
 
         Ok(())
@@ -214,7 +258,7 @@ mod tests {
         4 C, 1 A => 1 CA
         2 AB, 3 BC, 4 CA => 1 FUEL";
         let formulas = parse_formulas(input)?;
-        let ore = ore_for_fuel(&formulas);
+        let ore = ore_for_fuel(&formulas, 1);
         assert_eq!(ore, 165);
 
         Ok(())
@@ -232,7 +276,7 @@ mod tests {
         165 ORE => 2 GPVTF
         3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT";
         let formulas = parse_formulas(input)?;
-        let ore = ore_for_fuel(&formulas);
+        let ore = ore_for_fuel(&formulas, 1);
         assert_eq!(ore, 13312);
 
         Ok(())
