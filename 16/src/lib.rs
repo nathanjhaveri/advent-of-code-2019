@@ -31,28 +31,39 @@ pub fn process_signal(input: &str, phases: usize) -> Vec<Int> {
     let pattern = vec![0, 1, 0, -1];
     let mut signal = parse_input_vec(input);
 
-    for i in 0..phases {
-        println!("phase {}", i);
+    for _ in 0..phases {
         signal = phase_in_place(&pattern, &signal);
     }
 
     signal
 }
 
-pub fn val_at_offset(signal: &[Int], offset: usize) -> i64 {
-    (0..8)
-        .map(|i| signal[offset + i] as i64 * 10i64.pow(7 - i as u32))
+pub fn val_at_pos(signal: &[Int], pos: usize, len: usize) -> usize {
+    (0..len)
+        .map(|i| signal[pos + i] as usize * 10usize.pow((len - i - 1) as u32))
         .sum()
 }
 
-pub fn message_offset(signal: &[Int]) -> usize {
-    (signal[0] as usize * 10usize.pow(6)
-        + signal[1] as usize * 10usize.pow(5)
-        + signal[2] as usize * 10usize.pow(4)
-        + signal[3] as usize * 10usize.pow(3)
-        + signal[4] as usize * 10usize.pow(2)
-        + signal[5] as usize * 10usize.pow(1)
-        + signal[6] as usize * 10usize.pow(0)) as usize
+pub fn phase_after_half(signal: &[Int]) -> Vec<Int> {
+    let mut processed = Vec::with_capacity(signal.len());
+    let mut running_total = 0;
+    for &val in signal.iter().rev() {
+        running_total = (running_total + val) % 10;
+        processed.push(running_total)
+    }
+
+    processed.reverse();
+
+    processed
+}
+
+pub fn process_after_half(signal: &[Int], offset: usize) -> Vec<Int> {
+    let mut ret = phase_after_half(&signal[offset..]);
+    for _ in 1..100 {
+        ret = phase_after_half(&ret);
+    }
+
+    ret
 }
 
 #[cfg(test)]
@@ -63,7 +74,7 @@ mod tests {
     fn example_1() {
         let input = "80871224585914546619083218645595";
         let output = process_signal(input, 100);
-        let val = val_at_offset(&output, 0);
+        let val = val_at_pos(&output, 0, 8);
         assert_eq!(val, 24_176_176);
     }
 
@@ -71,36 +82,33 @@ mod tests {
     fn verify_offset() {
         let input = "03036732577212944063491565474664";
         let signal = parse_input_vec(input);
-        assert_eq!(303_673, message_offset(&signal));
+        assert_eq!(303_673, val_at_pos(&signal, 0, 7));
     }
 
     #[test]
     fn sixteen_1() {
         let output = process_signal(SIXTEEN_INPUT, 100);
-        let output = val_at_offset(&output, 0);
+        let output = val_at_pos(&output, 0, 8);
         assert_eq!(output, 28_430_146);
     }
 
-    //#[test]
-    //fn example_2_1() {
-    //    let input: &str = &"03036732577212944063491565474664".repeat(10000);
-    //    let signal = parse_input_vec(input);
-    //    let offset = message_offset(&signal);
+    #[test]
+    fn example_2_1() {
+        let input: &str = &"03036732577212944063491565474664".repeat(10000);
+        let signal = parse_input_vec(input);
+        let offset = val_at_pos(&signal, 0, 7);
+        let signal = process_after_half(&signal, offset);
+        let answer = val_at_pos(&signal, 0, 8);
+        assert_eq!(answer, 84462026);
+    }
 
-    //    let signal = process_signal(input, 100);
-
-    //    let val = val_at_offset(&signal, offset);
-    //    assert_eq!(val, 84_462_026);
-    //}
-
-    // #[test]
-    // fn sixteen_2() {
-    //     let input: &str = &SIXTEEN_INPUT.repeat(10000);
-    //     let signal = parse_input_vec(input);
-    //     let offset = message_offset(&signal);
-
-    //     let output = process_signal(input, 100);
-    //     let output = val_at_offset(&output, offset);
-    //     assert_eq!(output, 284)
-    // }
+    #[test]
+    fn sixteen_2() {
+        let input: &str = &SIXTEEN_INPUT.repeat(10000);
+        let signal = parse_input_vec(input);
+        let offset = val_at_pos(&signal, 0, 7);
+        let signal = process_after_half(&signal, offset);
+        let answer = val_at_pos(&signal, 0, 8);
+        assert_eq!(answer, 12064286);
+    }
 }
