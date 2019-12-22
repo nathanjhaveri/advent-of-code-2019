@@ -148,14 +148,33 @@ fn print_robot(pos: Pos, glyph: Glyph) {
 
 pub fn find_oxygen() -> usize {
     let mut computer = IntCode::new(FIFTEEN);
-    let (distance, _, _) = bfs_with_robot(&mut computer, (0, 0));
+    let (distance, _, _) = bfs_with_robot(&mut computer, (0, 0), true);
     distance
 }
 
-pub fn bfs_with_robot(computer: &mut IntCode, start: Pos) -> (usize, Pos, HashMap<Pos, Pos>) {
+pub fn biggest_dist_to_oxygen() -> usize {
+    let mut computer = IntCode::new(FIFTEEN);
+    // Get robot on oxygen
+    let (_, o2_pos, _) = bfs_with_robot(&mut computer, (0, 0), true);
+
+    // Run BFS again with o2 as root for parent tree and all nodes found
+    let (_, _, parents) = bfs_with_robot(&mut computer, o2_pos, false);
+
+    parents
+        .keys()
+        .map(|&pos| find_distance_to_root(&parents, pos))
+        .max()
+        .unwrap_or(0)
+}
+
+fn bfs_with_robot(
+    computer: &mut IntCode,
+    start: Pos,
+    short_circut: bool,
+) -> (usize, Pos, HashMap<Pos, Pos>) {
     let mut distance_to_oxygen = 0;
     let mut oxygen_pos = (0, 0);
-    let mut current_pos = (0, 0);
+    let mut current_pos = start;
 
     let mut queue = VecDeque::new();
     let mut discovered = HashSet::new();
@@ -191,11 +210,14 @@ pub fn bfs_with_robot(computer: &mut IntCode, start: Pos) -> (usize, Pos, HashMa
                     }
                     FOUND_O2 => {
                         oxygen_pos = new_pos;
+                        distance_to_oxygen = find_distance_to_root(&parents, new_pos);
+                        if short_circut {
+                            return (distance_to_oxygen, oxygen_pos, parents);
+                        }
+
                         computer.input(opposite_dir(dir));
                         computer.compute_output();
                         queue.push_back(new_pos);
-
-                        distance_to_oxygen = find_distance_to_root(&parents, new_pos);
                     }
                     _ => panic!("unexpected output"),
                 }
@@ -216,5 +238,10 @@ mod tests {
     #[test]
     fn fifteen_1() {
         assert_eq!(412, find_oxygen());
+    }
+
+    #[test]
+    fn fifteen_2() {
+        assert_eq!(418, biggest_dist_to_oxygen());
     }
 }

@@ -1,7 +1,7 @@
 mod lib;
-use lib::find_oxygen;
+use lib::*;
 
 fn main() {
-    let dist = find_oxygen();
+    let dist = biggest_dist_to_oxygen();
     println!("\n{}", dist);
 }
