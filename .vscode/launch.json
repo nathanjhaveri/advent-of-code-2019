@@ -7,16 +7,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'sixteen'",
+            "name": "Debug unit tests in library 'fifteen'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
                     "--lib",
-                    "--package=sixteen"
+                    "--package=fifteen"
                 ],
                 "filter": {
-                    "name": "sixteen",
+                    "name": "fifteen",
                     "kind": "lib"
                 }
             },
