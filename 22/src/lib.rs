@@ -63,7 +63,11 @@ fn parse_instructions(instructions: &str) -> Vec<Instructions> {
 }
 
 pub fn shuffle(instructions: &str, deck_size: i64) -> Deck {
-    let mut deck = create_cards(deck_size);
+    let deck = create_cards(deck_size);
+    shuffle_deck(instructions, deck)
+}
+
+pub fn shuffle_deck(instructions: &str, mut deck: Deck) -> Deck {
     let instructions = parse_instructions(instructions);
     for instruction in instructions {
         deck = match instruction {
@@ -97,6 +101,28 @@ pub fn shuffle_track_card(instructions: &str, deck_size: i64, card: i64) -> i64 
 
     card_loc
 }
+
+//pub fn shuffle_track_pos(instructions: &str, deck_size: i64, pos: i64) -> i64 {
+//    let instructions = parse_instructions(instructions);
+//    let mut val_at_pos = pos; // Assume deck starts out in order
+//    for instruction in instructions {
+//        val_at_pos = match instruction {
+//            Instructions::Cut(n) => {
+//                let cut_point = if n < 0 { deck_size + n } else { n };
+//
+//                if card_loc < cut_point {
+//                    deck_size - cut_point + card_loc
+//                } else {
+//                    card_loc - cut_point
+//                }
+//            }
+//            Instructions::NewStack => deck_size - card_loc - 1,
+//            Instructions::Increment(n) => (card_loc * n) % deck_size,
+//        };
+//    }
+//
+//    val_at_pos
+//}
 
 #[cfg(test)]
 mod tests {
@@ -148,7 +174,13 @@ mod tests {
 
     #[test]
     fn twentytwo_2() {
-        //let loc = shuffle_track_card(PROGRAM_22, DECK_SIZE, 2019);
+        let mut deck = shuffle(PROGRAM_22, DECK_SIZE);
+        for i in 1..100 {
+            println!("{:?}", deck[0..15].to_vec());
+            deck = shuffle_deck(PROGRAM_22, deck);
+        }
+
+        //let loc = scard_lochuffle_track_card(PROGRAM_22, DECK_SIZE, 2019);
         //assert_eq!(loc, 7665);
     }
 
